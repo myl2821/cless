@@ -85,16 +85,32 @@ fn main() {
     loop {
         fresh_screen(&mut ctx);
         match nc::getch() {
-            // j, up
-            0x6a | nc::KEY_UP => {
+            // j, down
+            0x6a | nc::KEY_DOWN => {
                 if ctx.y_offset < ctx.buf_length - 1 {
                     ctx.y_offset += 1;
                 }
             }
-            // k, down
-            0x6b | nc::KEY_DOWN => {
+            // k, up
+            0x6b | nc::KEY_UP => {
                 if ctx.y_offset > 0 {
                     ctx.y_offset -= 1;
+                }
+            }
+            // f, z
+            0x66 | 0x7a=> {
+                if ctx.y_offset + ctx.scr_height < ctx.buf_length - ctx.scr_height {
+                    ctx.y_offset += ctx.scr_height;
+                } else {
+                    ctx.y_offset = ctx.buf_length - ctx.scr_height;
+                }
+            }
+            // b, w
+            0x62 | 0x77 => {
+                if ctx.y_offset > ctx.scr_height {
+                    ctx.y_offset -= ctx.scr_height;
+                } else {
+                    ctx.y_offset = 0;
                 }
             }
             // q
