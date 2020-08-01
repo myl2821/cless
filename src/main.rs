@@ -46,7 +46,7 @@ fn add_line(ctx: &mut Context, i: i32) -> bool {
         let mut cur_y = 0;
         nc::getyx(nc::stdscr(), &mut cur_y, &mut cur_x);
 
-        if cur_y == ctx.scr_height {
+        if cur_y == ctx.scr_height - 1 {
             return false;
         }
 
@@ -69,6 +69,15 @@ fn fresh_screen(ctx: &mut Context) {
     nc::mv(0, 0);
 }
 
+fn update_prompt(ctx: &Context) {
+    if ctx.y_offset == ctx.buf_length - 1 {
+        nc::attron(nc::A_BOLD() | nc::A_REVERSE());
+        nc::mv(ctx.scr_height - 1, 0);
+        nc::printw("(END)");
+        nc::attroff(nc::A_BOLD() | nc::A_REVERSE());
+    }
+}
+
 fn main() {
     let lines = read_lines();
 
@@ -84,10 +93,11 @@ fn main() {
 
     loop {
         fresh_screen(&mut ctx);
+        update_prompt(&ctx);
         match nc::getch() {
             // j, down
             0x6a | nc::KEY_DOWN => {
-                if ctx.y_offset < ctx.buf_length - 1 {
+                if ctx.y_offset < ctx.buf_length - 2 {
                     ctx.y_offset += 1;
                 }
             }
@@ -99,7 +109,7 @@ fn main() {
             }
             // f, z
             0x66 | 0x7a => {
-                if ctx.y_offset + ctx.scr_height < ctx.buf_length - 1 {
+                if ctx.y_offset + ctx.scr_height < ctx.buf_length - 2 {
                     ctx.y_offset += ctx.scr_height;
                 } else {
                     ctx.y_offset = ctx.buf_length - 1;
