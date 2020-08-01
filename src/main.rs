@@ -97,7 +97,7 @@ fn main() {
         match nc::getch() {
             // j, down
             0x6a | nc::KEY_DOWN => {
-                if ctx.y_offset < ctx.buf_length - 2 {
+                if ctx.y_offset < ctx.buf_length - 1 {
                     ctx.y_offset += 1;
                 }
             }
@@ -109,7 +109,7 @@ fn main() {
             }
             // f, z
             0x66 | 0x7a => {
-                if ctx.y_offset + ctx.scr_height < ctx.buf_length - 2 {
+                if ctx.y_offset + ctx.scr_height < ctx.buf_length - 1 {
                     ctx.y_offset += ctx.scr_height;
                 } else {
                     ctx.y_offset = ctx.buf_length - 1;
