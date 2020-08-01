@@ -98,11 +98,11 @@ fn main() {
                 }
             }
             // f, z
-            0x66 | 0x7a=> {
-                if ctx.y_offset + ctx.scr_height < ctx.buf_length - ctx.scr_height {
+            0x66 | 0x7a => {
+                if ctx.y_offset + ctx.scr_height < ctx.buf_length - 1 {
                     ctx.y_offset += ctx.scr_height;
                 } else {
-                    ctx.y_offset = ctx.buf_length - ctx.scr_height;
+                    ctx.y_offset = ctx.buf_length - 1;
                 }
             }
             // b, w
