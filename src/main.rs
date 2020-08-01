@@ -85,18 +85,20 @@ fn main() {
     loop {
         fresh_screen(&mut ctx);
         match nc::getch() {
-            // j
-            0x6a => {
+            // j, up
+            0x6a | nc::KEY_UP => {
                 if ctx.y_offset < ctx.buf_length - 1 {
                     ctx.y_offset += 1;
                 }
             }
-            // k
-            0x6b => {
+            // k, down
+            0x6b | nc::KEY_DOWN => {
                 if ctx.y_offset > 0 {
                     ctx.y_offset -= 1;
                 }
             }
+            // q
+            0x71 => break,
             _ => (),
         }
     }
