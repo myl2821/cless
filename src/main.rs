@@ -1,7 +1,6 @@
 extern crate ncurses;
 
 use ncurses as nc;
-use std::char;
 use std::env;
 use std::fs;
 use std::io::{BufRead, BufReader};
@@ -56,7 +55,7 @@ fn add_line(ctx: &mut Context, i: i32) -> bool {
     true
 }
 
-fn fresh_screen(ctx: &mut Context) {
+fn refresh(ctx: &mut Context) {
     nc::clear();
     for i in 0..ctx.scr_height {
         if add_line(ctx, i) {
@@ -69,7 +68,7 @@ fn fresh_screen(ctx: &mut Context) {
     nc::mv(0, 0);
 }
 
-fn update_prompt(ctx: &Context) {
+fn prompt(ctx: &Context) {
     if ctx.y_offset == ctx.buf_length - 1 {
         nc::attron(nc::A_BOLD() | nc::A_REVERSE());
         nc::mv(ctx.scr_height - 1, 0);
@@ -92,8 +91,8 @@ fn main() {
     nc::getmaxyx(nc::stdscr(), &mut ctx.scr_height, &mut ctx.scr_width);
 
     loop {
-        fresh_screen(&mut ctx);
-        update_prompt(&ctx);
+        refresh(&mut ctx);
+        prompt(&ctx);
         match nc::getch() {
             // j, down
             0x6a | nc::KEY_DOWN => {
