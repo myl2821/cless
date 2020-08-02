@@ -28,6 +28,7 @@ impl Row {
             }
         }
 
+        words.push((word.into_iter().collect(), ' '));
         words
     }
 }
