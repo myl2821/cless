@@ -198,8 +198,8 @@ fn add_line(ctx: &mut Context, i: i32) -> bool {
     if ctx.y_offset + i >= ctx.rows.len() as i32 {
         return false;
     }
-    let s = &ctx.rows[(ctx.y_offset + i) as usize].raw;
-    for c in s.chars() {
+    let tokens = &ctx.rows[(ctx.y_offset + i) as usize].tokens;
+    for (token, attr) in tokens {
         let mut cur_x = 0;
         let mut cur_y = 0;
         nc::getyx(nc::stdscr(), &mut cur_y, &mut cur_x);
@@ -208,7 +208,9 @@ fn add_line(ctx: &mut Context, i: i32) -> bool {
             return false;
         }
 
-        nc::addch(c as nc::chtype);
+        nc::attr_on(*attr);
+        nc::addstr(token);
+        nc::attr_off(*attr);
     }
 
     true
