@@ -48,7 +48,11 @@ impl Context {
         } else if self.in_comment && word.contains("*/") {
             self.in_comment = false;
             return COLOR_PAIR(COLOR_PAIR_COMMENT);
-        } else if !self.in_comment && word.contains("/*") {
+        } else if !self.in_string
+            && !self.in_comment
+            && word.contains("/*")
+            && !word.contains("\"/*")
+        {
             self.in_comment = true;
             return COLOR_PAIR(COLOR_PAIR_COMMENT);
         }
