@@ -26,6 +26,7 @@ static COLOR_PAIR_COMMENT: i16 = 5;
 static COLOR_PAIR_STRING: i16 = 6;
 static COLOR_PAIR_CHAR: i16 = 7;
 static COLOR_PAIR_NUMBER: i16 = 8;
+static COLOR_PAIR_PUNCTUATION: i16 = 2;
 
 #[derive(Debug, Default)]
 struct Context {
@@ -35,27 +36,37 @@ struct Context {
     pub buf_length: i32,
     pub x_offset: i32,
     pub y_offset: i32,
-    in_comment: bool,
+    in_multi_comment: bool,
+    in_single_comment: bool,
     in_string: bool,
     in_char: bool,
 }
 
 impl Context {
     fn highlight_word(&mut self, word: &str) -> attr_t {
-        /* Comments. */
-        if self.in_comment && !word.contains("*/") {
+        /* Multi-line Comments. */
+        if self.in_multi_comment && !word.contains("*/") {
             return COLOR_PAIR(COLOR_PAIR_COMMENT);
-        } else if self.in_comment && word.contains("*/") {
-            self.in_comment = false;
+        } else if self.in_multi_comment && word.contains("*/") {
+            self.in_multi_comment = false;
             return COLOR_PAIR(COLOR_PAIR_COMMENT);
         } else if !self.in_string
-            && !self.in_comment
+            && !self.in_multi_comment
             && word.contains("/*")
             && !word.contains("\"/*")
         {
-            self.in_comment = true;
+            self.in_multi_comment = true;
             return COLOR_PAIR(COLOR_PAIR_COMMENT);
         }
+
+        /* Single-line Comments. */
+        if self.in_single_comment {
+            return COLOR_PAIR(COLOR_PAIR_COMMENT);
+        } else if !self.in_string && !self.in_single_comment && word.contains("//") && !word.contains("\"//") {
+            self.in_single_comment = true;
+            return COLOR_PAIR(COLOR_PAIR_COMMENT);
+        }
+
 
         /* Strings. */
         if !self.in_char {
@@ -100,11 +111,20 @@ impl Context {
 
         match word {
             /* Key words. */
+            "as" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "async" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "await" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "break" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "continue" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "crate" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "do" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "dyn" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "else" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "enum" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "extern" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "false" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "fn" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "for" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "in" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "if" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "impl" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
@@ -112,19 +132,21 @@ impl Context {
             "log" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "loop" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "match" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "mod" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "move" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "once" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "priv" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "pub" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "return" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
-            "unsafe" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
-            "while" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
-            "use" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
-            "mod" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
-            "trait" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "struct" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
-            "enum" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "super" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "trait" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
             "type" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
-            "fn" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "unsafe" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "use" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "union" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "while" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
+            "where" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
 
             /* Types. */
             "int" => COLOR_PAIR(COLOR_PAIR_TYPE),
@@ -143,6 +165,7 @@ impl Context {
             "str" => COLOR_PAIR(COLOR_PAIR_TYPE),
             "self" => COLOR_PAIR(COLOR_PAIR_TYPE),
             "Self" => COLOR_PAIR(COLOR_PAIR_TYPE),
+            "true" => COLOR_PAIR(COLOR_PAIR_KEYWORD),
 
             /* Storage. */
             "const" => COLOR_PAIR(COLOR_PAIR_STORAGE),
@@ -150,18 +173,65 @@ impl Context {
             "ref" => COLOR_PAIR(COLOR_PAIR_STORAGE),
             "static" => COLOR_PAIR(COLOR_PAIR_STORAGE),
 
+            /* Punctuation. */
+            "+" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "-" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "*" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "/" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "%" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "^" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "!" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "&" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "|" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "&&" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "||" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "<<" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            ">>+" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "+=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "-=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "*=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "/=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "%=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "^=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "&=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "|=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "<<=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            ">>=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "==" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "!=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            ">" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "<" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            ">=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "<=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "@" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "_" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "." => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            ".." => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "..." => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "..=" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "," => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            ";" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "::" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "->" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "=>" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "#" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "$" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+            "?" => COLOR_PAIR(COLOR_PAIR_PUNCTUATION),
+
             /* Not something we need to highlight. */
             _ => 0,
         }
     }
 
     pub fn parse(&mut self) {
-        self.in_comment = false;
+        self.in_multi_comment = false;
         self.in_string = false;
         self.in_char = false;
 
         let mut rows = self.rows.clone();
         for row in &mut rows {
+            self.in_single_comment = false;
             let words = row.split();
             for (word, delimiter) in words {
                 let attr = self.highlight_word(word.as_ref());
