@@ -4,38 +4,32 @@ use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
-/* Individual color handles. */
-static COLOR_BACKGROUND: i16 = 16;
-static COLOR_FOREGROUND: i16 = 17;
-static COLOR_KEYWORD: i16 = 18;
-static COLOR_TYPE: i16 = 19;
-static COLOR_STORAGE: i16 = 20;
-static COLOR_COMMENT: i16 = 21;
-static COLOR_STRING: i16 = 22;
-static COLOR_CHAR: i16 = 23;
-static COLOR_NUMBER: i16 = 24;
-
-/* Color pairs; foreground && background. */
-static COLOR_PAIR_DEFAULT: i16 = 1;
-static COLOR_PAIR_KEYWORD: i16 = 2;
-static COLOR_PAIR_TYPE: i16 = 3;
-static COLOR_PAIR_STORAGE: i16 = 4;
-static COLOR_PAIR_COMMENT: i16 = 5;
-static COLOR_PAIR_STRING: i16 = 6;
-static COLOR_PAIR_CHAR: i16 = 7;
-static COLOR_PAIR_NUMBER: i16 = 8;
-
 /* Word delimiters. */
-static WORD_LIMITS: &'static [u8] = &[
-    ' ' as u8, '(' as u8, ')' as u8, ':' as u8, ';' as u8, '&' as u8, '+' as u8, '-' as u8,
-    ',' as u8, '.' as u8, '@' as u8, '~' as u8, '\\' as u8, '\n' as u8, '\r' as u8, '\0' as u8,
-    !0 as u8,
+static WORD_LIMITS: &'static [char] = &[
+    ' ', '(', ')', ':', ';', '&', '+', '-', ',', '.', '@', '~', '\\', '\n', '\r', '\0', !0 as char,
 ];
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Row {
     pub raw: String,
     pub tokens: Vec<(String, nc::attr_t)>,
+}
+
+impl Row {
+    pub fn split(&self) -> Vec<(String, char)> {
+        let mut words = vec![];
+        let mut word = vec![];
+        for c in self.raw.chars() {
+            if !WORD_LIMITS.contains(&c) {
+                word.push(c);
+            } else {
+                words.push((word.into_iter().collect(), c));
+                word = vec![];
+            }
+        }
+
+        words
+    }
 }
 
 pub fn read_rows() -> Vec<Row> {
@@ -58,4 +52,14 @@ pub fn read_rows() -> Vec<Row> {
     }
 
     rows
+}
+
+#[test]
+fn split() {
+    let row = Row {
+        raw: "    if args.len() != 255 {".into(),
+        tokens: vec![],
+    };
+
+    println!("{:?}", row::split_word(&row.raw));
 }
