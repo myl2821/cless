@@ -1,4 +1,4 @@
-use crate::language::{Language, C, RUST};
+use crate::language::*;
 use ncurses as nc;
 use std::env;
 use std::ffi::OsStr;
@@ -58,6 +58,7 @@ pub fn read_rows() -> (Vec<Row>, Option<&'static Language>) {
         Some(os_str) => match os_str.to_str().unwrap() {
             "rs" => Some(&RUST),
             "c" | "h" | "cpp" => Some(&C),
+            "rb" => Some(&RUBY),
             _ => None,
         },
         _ => None,

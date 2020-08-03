@@ -33,4 +33,16 @@ lazy_static! {
         types: vec!["int", "long", "double", "float", "char", "unsigned", "signed", "void"],
         storages: vec!["const", "static"],
     };
+    pub static ref RUBY: Language = Language {
+        single_line_comment: Some("#"),
+        multi_line_comment: None, // FIXME
+        keywords: vec![
+            "alias", "and", "begin", "break", "case", "class", "def", "defined?",
+            "do", "else", "elsif", "end", "ensure", "false", "for", "if" , "in",
+            "module" , "next", "nil", "not",  "or", "redo", "rescue", "retry", "return",
+            "self", "super", "then", "true", "undef", "unless", "until", "when", "while", "yield"
+        ],
+        types: vec![],
+        storages: vec![],
+    };
 }
