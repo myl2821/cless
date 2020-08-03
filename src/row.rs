@@ -1,6 +1,7 @@
 use crate::language::{Language, RUST};
 use ncurses as nc;
 use std::env;
+use std::ffi::OsStr;
 use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
@@ -53,15 +54,13 @@ pub fn read_rows() -> (Vec<Row>, Option<&'static Language>) {
         }
     }
 
-    (rows, Some(&RUST))
-}
-
-#[test]
-fn split() {
-    let row = Row {
-        raw: "    if args.len() != 255 {".into(),
-        tokens: vec![],
+    let lang: Option<&'static Language> = match Path::new(&args[1]).extension() {
+        Some(os_str) => match os_str.to_str() {
+            Some("rs") => Some(&RUST),
+            _ => None,
+        },
+        _ => None,
     };
 
-    println!("{:?}", row::split_word(&row.raw));
+    (rows, lang)
 }
