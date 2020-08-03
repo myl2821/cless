@@ -1,3 +1,4 @@
+use crate::language::{Language, RUST};
 use ncurses as nc;
 use std::env;
 use std::fs;
@@ -33,7 +34,7 @@ impl Row {
     }
 }
 
-pub fn read_rows() -> Vec<Row> {
+pub fn read_rows() -> (Vec<Row>, Option<&'static Language>) {
     let args: Vec<_> = env::args().collect();
     if args.len() != 2 {
         println!("Usage:\n\t{} <file>", args[0]);
@@ -52,7 +53,7 @@ pub fn read_rows() -> Vec<Row> {
         }
     }
 
-    rows
+    (rows, Some(&RUST))
 }
 
 #[test]
