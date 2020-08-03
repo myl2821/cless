@@ -23,4 +23,14 @@ lazy_static! {
         ],
         storages: vec!["const", "ref", "mut", "static"],
     };
+    pub static ref C: Language = Language {
+        single_line_comment: Some("//"),
+        multi_line_comment: Some(("/*", "*/")),
+        keywords: vec![
+            "switch", "if", "while", "for", "break", "continue", "return", "else", "struct",
+            "union", "typedef", "static", "enum", "class", "case",
+        ],
+        types: vec!["int", "long", "double", "float", "char", "unsigned", "signed", "void"],
+        storages: vec!["const", "static"],
+    };
 }

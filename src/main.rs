@@ -96,7 +96,7 @@ impl Context {
             } else if !self.in_string && word.contains("\"") {
                 /* If the same quote is found from either direction
                  * then it's the only quote in the string. */
-                if word.find('\"') == word.rfind('\"') {
+                if word.find('\"') == word.rfind('\"') && !word.contains("'\"") {
                     self.in_string = true;
                 }
                 return COLOR_PAIR(COLOR_PAIR_STRING);
